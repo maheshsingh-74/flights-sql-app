@@ -3,7 +3,7 @@ import psycopg2
 class DB:
     def __init__(self):
         try:
-            # Internal Render database URL for the live server
+            # Internal Render database URL for live deployment
             self.conn = psycopg2.connect("postgresql://admin:8s8njfthGPcPfmihNoFGOvf7qkleaGu6@dpg-d8hgnof7f7vs73chs7ag-a/flights_9aks")
             self.mycursor = self.conn.cursor()
             print('Connection established')
@@ -13,9 +13,9 @@ class DB:
     def fetch_city_names(self):
         city = []
         self.mycursor.execute("""
-        SELECT DISTINCT(dest) FROM flights
+        SELECT DISTINCT(dest) FROM flight_data
         UNION
-        SELECT DISTINCT(origin) FROM flights
+        SELECT DISTINCT(origin) FROM flight_data
         """)
         data = self.mycursor.fetchall()
         for item in data:
@@ -24,7 +24,7 @@ class DB:
 
     def fetch_all_flights(self, source, destination):
         self.mycursor.execute("""
-        SELECT carrier, flight, dep_time, air_time, price FROM flights
+        SELECT carrier, flight, dep_time, air_time, price FROM flight_data
         WHERE origin = %s AND dest = %s
         """, (source, destination))
         data = self.mycursor.fetchall()
@@ -34,7 +34,7 @@ class DB:
         airline = []
         frequency = []
         self.mycursor.execute("""
-        SELECT carrier, COUNT(*) FROM flights
+        SELECT carrier, COUNT(*) FROM flight_data
         GROUP BY carrier
         """)
         data = self.mycursor.fetchall()
@@ -48,9 +48,9 @@ class DB:
         frequency = []
         self.mycursor.execute("""
         SELECT t.airport, COUNT(*) FROM (
-            SELECT origin AS airport FROM flights
+            SELECT origin AS airport FROM flight_data
             UNION ALL
-            SELECT dest AS airport FROM flights
+            SELECT dest AS airport FROM flight_data
         ) t
         GROUP BY t.airport
         ORDER BY COUNT(*) DESC
@@ -65,7 +65,7 @@ class DB:
         date = []
         frequency = []
         self.mycursor.execute("""
-        SELECT time_hour, COUNT(*) FROM flights
+        SELECT time_hour, COUNT(*) FROM flight_data
         GROUP BY time_hour
         """)
         data = self.mycursor.fetchall()
